@@ -1,0 +1,8 @@
+{
+  "name": "goarxyz",
+  "description": "Minimalist high-speed web gaming platform featuring 630+ instant games in matte black, bone white, and signature orange aesthetics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

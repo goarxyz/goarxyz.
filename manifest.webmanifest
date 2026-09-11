@@ -1,0 +1,64 @@
+{
+  "id": "/",
+  "name": "goarxyz",
+  "short_name": "goarxyz",
+  "description": "Minimalist high-speed web gaming platform featuring 630+ instant games in matte black, bone white, and signature orange aesthetics.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#09090b",
+  "theme_color": "#ff6600",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "All Games",
+      "short_name": "Games",
+      "description": "Explore the full 630+ game catalog",
+      "url": "/#games",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Favorite Games",
+      "short_name": "Favorites",
+      "description": "Quickly access your saved games",
+      "url": "/#favorites",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Puzzle Games",
+      "short_name": "Puzzle",
+      "description": "Play trending puzzle challenges",
+      "url": "/category/puzzle/",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
