@@ -1,0 +1,141 @@
+    <script>
+      // Service Worker registration in player
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      }
+
+      // Favorites handling in player
+      const SLUG = "temple-blocks";
+      const FAV_KEY = "goarxyz_favorites_v1";
+      const OLD_FAV_KEY = "playgama_favorites_v1";
+      const favBtn = document.getElementById("theater-fav-btn");
+
+      const getFavs = () => {
+        try {
+          let raw = localStorage.getItem(FAV_KEY);
+          if (!raw) {
+            raw = localStorage.getItem(OLD_FAV_KEY);
+            if (raw) localStorage.setItem(FAV_KEY, raw);
+          }
+          return raw ? JSON.parse(raw) : [];
+        } catch { return []; }
+      };
+
+      const isFav = () => getFavs().includes(SLUG);
+
+      const updateFavUI = () => {
+        if (isFav()) {
+          favBtn.classList.add("is-fav-active");
+          favBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Saved`;
+        } else {
+          favBtn.classList.remove("is-fav-active");
+          favBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Favorite`;
+        }
+      };
+
+      favBtn.addEventListener("click", () => {
+        const favs = getFavs();
+        const idx = favs.indexOf(SLUG);
+        if (idx > -1) {
+          favs.splice(idx, 1);
+        } else {
+          favs.push(SLUG);
+        }
+        try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch {}
+        updateFavUI();
+      });
+
+      updateFavUI();
+
+      // Fullscreen
+      const fsBtn = document.getElementById("theater-fullscreen-btn");
+      const container = document.getElementById("frame-container");
+      fsBtn.addEventListener("click", () => {
+        if (!document.fullscreenElement) {
+          container.requestFullscreen().catch(err => {
+            const iframe = document.getElementById("game-iframe");
+            iframe.requestFullscreen().catch(() => {});
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      });
+
+      // Reload
+      document.getElementById("theater-reload-btn").addEventListener("click", () => {
+        const iframe = document.getElementById("game-iframe");
+        iframe.src = iframe.src;
+      });
+
+      // Play Overlay
+      const gameOverlay = document.getElementById("game-brand-overlay");
+      const btnPlayGame = document.getElementById("btn-play-game");
+      const gameIframe = document.getElementById("game-iframe");
+      
+      if (gameOverlay && btnPlayGame && gameIframe) {
+        btnPlayGame.addEventListener("click", () => {
+          gameOverlay.classList.add("is-hidden");
+          const dataSrc = gameIframe.getAttribute("data-src");
+          if (dataSrc && !gameIframe.hasAttribute("src")) {
+            gameIframe.setAttribute("src", dataSrc);
+          }
+        });
+      }
+
+      // Share Toast
+      const shareBtn = document.getElementById("theater-share-btn");
+      const toast = document.getElementById("toast");
+      shareBtn.addEventListener("click", () => {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(window.location.href).then(() => {
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 2500);
+          });
+        }
+      });
+    </script>
+
+<div id="side-drawer" class="side-drawer">
+  <div class="side-drawer-overlay"></div>
+  <div class="side-drawer-content">
+    <div class="side-drawer-header">
+      <div class="brand">
+        <div class="brand__logo-wrap">
+          <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 370 80 L 190 80 L 80 190 L 80 322 L 190 432 L 340 432 L 430 342 L 430 256 L 310 256" fill="none" stroke="#f7f6f2" stroke-width="85" stroke-linecap="square" stroke-linejoin="miter"></path>
+            <polygon points="280,200 280,312 180,256" fill="#ff6600"></polygon>
+          </svg>
+        </div>
+        <span class="brand__name">goar<span class="brand__name-xyz">xyz</span></span>
+      </div>
+      <button id="btn-close-drawer" class="btn-close-drawer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="side-drawer-body">
+      <div class="drawer-nav">
+        <a href="/" class="drawer-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          Home
+        </a>
+        <a href="/category/action/" class="drawer-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Categories
+        </a>
+        <a href="/#favorites" class="drawer-nav-item drawer-btn-favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          Favorites
+        </a>
+      </div>
+      <div class="drawer-section">
+        <h3 class="drawer-section-title">Recently Played</h3>
+        <div id="drawer-recent-list" class="drawer-recent-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,124 +1,10 @@
-import https from "https";
-import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
-import { parse } from "node-html-parser";
-
-const _filename = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
-const _dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(_filename);
-
-const app = express();
-const PORT = 3000;
-
-// Serve static files from the root directory
-app.use(express.static(_dirname));
-
-
-
-const mimeTypes: Record<string, string> = {
-  '.html': 'text/html',
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.json': 'application/json',
-  '.wasm': 'application/wasm',
-  '.wav': 'audio/wav',
-  '.mp3': 'audio/mpeg',
-  '.mp4': 'video/mp4',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf',
-  '.eot': 'application/vnd.ms-fontobject',
-  '.otf': 'font/otf'
-};
-
-// Cache for game metadata
-interface GameInfo {
-  title: string;
-  description: string;
-  image: string;
-  slug: string;
-  category: string;
-  provider?: string;
-}
-const gamesMap = new Map<string, GameInfo>();
-const allGamesList: GameInfo[] = [];
-
-function initializeMetadata() {
-  try {
-    const html = fs.readFileSync(path.join(_dirname, "index.html"), "utf-8");
-    const root = parse(html);
-    const cards = root.querySelectorAll(".game-card");
-    
-    cards.forEach(card => {
-      const link = card.querySelector(".game-card__link")?.getAttribute("href");
-      if (link && link.includes("/game/")) {
-        const slug = link.replace("/game/", "").replace("/", "");
-        if (!gamesMap.has(slug)) {
-          const title = card.querySelector("h3")?.text.trim() || "";
-          const description = card.querySelector(".game-card__description")?.text.trim() || "";
-          const image = card.querySelector("img")?.getAttribute("src") || "";
-          const category = card.getAttribute("data-search")?.split(" ").pop() || "Games";
-          const provider = card.getAttribute("data-provider") || "famobi";
-          const gameInfo: GameInfo = { title, description, image, slug, category, provider };
-          gamesMap.set(slug, gameInfo);
-          allGamesList.push(gameInfo);
-        }
-      }
-    });
-    console.log(`Initialized metadata for ${gamesMap.size} games.`);
-  } catch (err) {
-    console.error("Error parsing index.html for metadata:", err);
-  }
-}
-
-initializeMetadata();
-
-// Game Page Route (Playgama Theater Design)
-app.get("/game/:slug", (req, res) => {
-  const { slug } = req.params;
-  const game = gamesMap.get(slug);
-  
-  if (!game) {
-    return res.status(404).send("Game not found");
-  }
-
-  // Get 6 to 8 recommended games (prefer same category or random picks)
-  const sameCat = allGamesList.filter(g => g.category === game.category && g.slug !== slug);
-  const otherCat = allGamesList.filter(g => g.category !== game.category && g.slug !== slug);
-  const recommended = [...sameCat, ...otherCat].slice(0, 8);
-
-  const recommendedCardsHtml = recommended.map(g => `
-    <article class="game-card" style="cursor: pointer;" onclick="window.location.href='/game/${g.slug}/'">
-      <div class="game-card__top">
-        <a class="game-card__image" href="/game/${g.slug}/">
-          <img src="${g.image}" alt="${g.title}" loading="lazy">
-        </a>
-        <div class="game-card__content">
-          <h3><a href="/game/${g.slug}/">${g.title}</a></h3>
-          <p class="game-card__description">${g.description}</p>
-        </div>
-      </div>
-      <div class="game-card__footer">
-        <div class="game-card__meta"><span>${g.category}</span></div>
-        <a class="game-card__cta" href="/game/${g.slug}/">Play</a>
-      </div>
-    </article>
-  `).join("");
-
-  // goarxyz Game Page
-  const gameHtml = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${game.title} - Play Online on goarxyz</title>
-    <meta name="description" content="Play ${game.title} online for free in your browser with zero downloads on goarxyz.">
+    <title>Temple Blocks - Play Online on goarxyz</title>
+    <meta name="description" content="Play Temple Blocks online for free in your browser with zero downloads on goarxyz.">
     <meta name="theme-color" content="#ff6600">
     <meta name="background-color" content="#09090b">
     <meta name="mobile-web-app-capable" content="yes">
@@ -288,12 +174,13 @@ app.get("/game/:slug", (req, res) => {
     <header class="site-header">
       <div class="header-inner">
         <a class="brand" href="/" aria-label="goarxyz Home">
-          <span class="brand__name">goar<span class="brand__name-xyz">xyz</span></span>
-          <span class="brand-icons-inline">
-            <svg class="brand-inline-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1" fill="currentColor"></circle><circle cx="18" cy="11" r="1" fill="currentColor"></circle></svg>
-            <svg class="brand-inline-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3" fill="currentColor"></circle><circle cx="18" cy="16" r="3" fill="currentColor"></circle></svg>
-            <svg class="brand-inline-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7" fill="currentColor"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-          </span>
+          <div class="brand__logo-wrap">
+            <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 370 80 L 190 80 L 80 190 L 80 322 L 190 432 L 340 432 L 430 342 L 430 256 L 310 256" fill="none" stroke="#f7f6f2" stroke-width="85" stroke-linecap="square" stroke-linejoin="miter"></path>
+      <polygon points="280,200 280,312 180,256" fill="#ff6600"></polygon>
+    </svg>
+          </div>
+          <span class="brand__name">goar<span class="brand__name-xyz">xyz</span><span class="brand__name-dot"></span></span>
         </a>
 
         <div class="header-center">
@@ -341,17 +228,17 @@ app.get("/game/:slug", (req, res) => {
       <div class="game-breadcrumbs">
         <a href="/">Home</a>
         <span>/</span>
-        <a href="/category/${game.category.toLowerCase().replace(/\s+/g, '-')}/">${game.category}</a>
+        <a href="/category/puzzle/">puzzle</a>
         <span>/</span>
-        <span>${game.title}</span>
+        <span>Temple Blocks</span>
       </div>
 
       <div class="game-theater-box" id="theater-box">
         <div class="theater-top-bar">
           <div class="theater-title-wrap">
-            <h1 class="theater-title">${game.title}</h1>
+            <h1 class="theater-title">Temple Blocks</h1>
             <span class="hero-rating"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:14px;height:14px;color:var(--accent)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> 4.9</span>
-            <span class="catalog-stats-pill">${game.category}</span>
+            <span class="catalog-stats-pill">puzzle</span>
           </div>
 
           <div class="theater-actions">
@@ -374,8 +261,8 @@ app.get("/game/:slug", (req, res) => {
           
           <div id="game-brand-overlay" class="game-brand-overlay">
             <div class="overlay-brand">
-              <img src="${game.image}" alt="${game.title}" class="overlay-game-icon">
-              <h2>${game.title}</h2>
+              <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/TempleBlocksTeaser.jpg" alt="Temple Blocks" class="overlay-game-icon">
+              <h2>Temple Blocks</h2>
             </div>
             <button id="btn-play-game" class="btn-play-overlay">
               <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
@@ -383,19 +270,19 @@ app.get("/game/:slug", (req, res) => {
             </button>
           </div>
 
-          <iframe id="game-iframe" data-src="https://play.famobi.com/${game.slug}/?customer=A1000" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>
+          <iframe id="game-iframe" data-src="https://play.famobi.com/temple-blocks/?customer=A1000" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>
         </div>
 
         <div class="game-info-panel">
           <div class="game-info-header">
-            <h2>About ${game.title}</h2>
+            <h2>About Temple Blocks</h2>
             <div class="hero-meta">
               <span class="hero-tag">Instant Play</span>
               <span class="hero-tag">Mobile & Desktop</span>
               <span class="hero-tag">Famobi HTML5</span>
             </div>
           </div>
-          <p>${game.description}</p>
+          <p></p>
         </div>
       </div>
 
@@ -405,61 +292,130 @@ app.get("/game/:slug", (req, res) => {
         </h2>
         
       <div class="game-grid">
-        ${recommended.map((game, index) => {
-          // span logic removed
-
-          return `
-            <article class="game-card" data-slug="${game.slug}">
-              <a href="/game/${game.slug}/" class="game-card__link">
+        
+            <article class="game-card" data-slug="cut-the-rope-time-travel">
+              <a href="/game/cut-the-rope-time-travel/" class="game-card__link">
                 <div class="game-card__img-wrap">
-                  <img src="${game.image}" alt="${game.title}" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/CutTheRopeTimeTravelTeaser.jpg" alt="Cut The Rope Time Travel" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
                 </div>
                 <div class="game-card__info">
-                  <h3>${game.title}</h3>
-                  <p class="game-card__cat">${game.category}</p>
+                  <h3>Cut The Rope Time Travel</h3>
+                  <p class="game-card__cat">puzzle</p>
                 </div>
               </a>
-            </article>`;
-        }).join("")}
+            </article>
+            <article class="game-card" data-slug="cut-the-rope-2">
+              <a href="/game/cut-the-rope-2/" class="game-card__link">
+                <div class="game-card__img-wrap">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/CutTheRope2Teaser.jpg" alt="Cut The Rope 2" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                </div>
+                <div class="game-card__info">
+                  <h3>Cut The Rope 2</h3>
+                  <p class="game-card__cat">puzzle</p>
+                </div>
+              </a>
+            </article>
+            <article class="game-card" data-slug="cut-the-rope-experiments">
+              <a href="/game/cut-the-rope-experiments/" class="game-card__link">
+                <div class="game-card__img-wrap">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/CutTheRopeExperimentsTeaser.jpg" alt="Cut The Rope Experiment" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                </div>
+                <div class="game-card__info">
+                  <h3>Cut The Rope Experiment</h3>
+                  <p class="game-card__cat">puzzle</p>
+                </div>
+              </a>
+            </article>
+            <article class="game-card" data-slug="cut-the-rope-magic">
+              <a href="/game/cut-the-rope-magic/" class="game-card__link">
+                <div class="game-card__img-wrap">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/CutTheRopeMagicTeaser.jpg" alt="Cut The Rope Magic" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                </div>
+                <div class="game-card__info">
+                  <h3>Cut The Rope Magic</h3>
+                  <p class="game-card__cat">puzzle</p>
+                </div>
+              </a>
+            </article>
+            <article class="game-card" data-slug="go-escape">
+              <a href="/game/go-escape/" class="game-card__link">
+                <div class="game-card__img-wrap">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/GoEscapeTeaser.jpg" alt="Go Escape" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                </div>
+                <div class="game-card__info">
+                  <h3>Go Escape</h3>
+                  <p class="game-card__cat">puzzle</p>
+                </div>
+              </a>
+            </article>
+            <article class="game-card" data-slug="color-fill-3d">
+              <a href="/game/color-fill-3d/" class="game-card__link">
+                <div class="game-card__img-wrap">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/ColorFill3dTeaser.jpg" alt="Color Fill 3D" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                </div>
+                <div class="game-card__info">
+                  <h3>Color Fill 3D</h3>
+                  <p class="game-card__cat">puzzle</p>
+                </div>
+              </a>
+            </article>
+            <article class="game-card" data-slug="spot-the-cat">
+              <a href="/game/spot-the-cat/" class="game-card__link">
+                <div class="game-card__img-wrap">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/SpotTheCatTeaser.jpg" alt="Spot the Cat" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                </div>
+                <div class="game-card__info">
+                  <h3>Spot the Cat</h3>
+                  <p class="game-card__cat">puzzle</p>
+                </div>
+              </a>
+            </article>
+            <article class="game-card" data-slug="color-roll-3d">
+              <a href="/game/color-roll-3d/" class="game-card__link">
+                <div class="game-card__img-wrap">
+                  <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/ColorRoll3dTeaser.jpg" alt="Color Roll 3D" loading="lazy" onerror="const c = this.closest('.game-card'); if(c) { c.style.display='none'; c.remove(); }">
+                </div>
+                <div class="game-card__info">
+                  <h3>Color Roll 3D</h3>
+                  <p class="game-card__cat">puzzle</p>
+                </div>
+              </a>
+            </article>
       </div>
   
       </section>
     </main></div></div>
-  
-<nav class="bottom-nav" id="main-bottom-nav">
-  <a href="/#games" class="bottom-nav-item is-active" id="sys-btn-games">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><path d="M15 13h.01"></path><path d="M18 11h.01"></path></svg>
-    <span>Games</span>
-  </a>
-  <a href="/#music" class="bottom-nav-item" id="sys-btn-music">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-    <span>Music</span>
-  </a>
-  <a href="/#anime" class="bottom-nav-item" id="sys-btn-anime">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-    <span>Anime</span>
-  </a>
-</nav>
-
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-item is-active" data-nav="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </a>
+    <a href="/category/puzzle/" class="bottom-nav-item" data-nav="puzzle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Categories</span>
+    </a>
+    <a href="#favorites" class="bottom-nav-item" id="bottom-nav-btn-favorites" data-nav="favorites">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      <span>Favorites</span>
+    </a>
+  </nav>
 <div class="toast" id="toast">Link copied to clipboard!</div>
 
     </div></div>
-  
-<nav class="bottom-nav" id="main-bottom-nav">
-  <a href="/#games" class="bottom-nav-item is-active" id="sys-btn-games">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><path d="M15 13h.01"></path><path d="M18 11h.01"></path></svg>
-    <span>Games</span>
-  </a>
-  <a href="/#music" class="bottom-nav-item" id="sys-btn-music">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-    <span>Music</span>
-  </a>
-  <a href="/#anime" class="bottom-nav-item" id="sys-btn-anime">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-    <span>Anime</span>
-  </a>
-</nav>
-
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-item is-active" data-nav="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </a>
+    <a href="/category/puzzle/" class="bottom-nav-item" data-nav="puzzle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Categories</span>
+    </a>
+    <a href="#favorites" class="bottom-nav-item" id="bottom-nav-btn-favorites" data-nav="favorites">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      <span>Favorites</span>
+    </a>
+  </nav>
 <footer class="site-footer">
       <div class="site-footer__inner">
         <div class="site-footer__left">
@@ -481,7 +437,7 @@ app.get("/game/:slug", (req, res) => {
       }
 
       // Favorites handling in player
-      const SLUG = "${slug}";
+      const SLUG = "temple-blocks";
       const FAV_KEY = "goarxyz_favorites_v1";
       const OLD_FAV_KEY = "playgama_favorites_v1";
       const favBtn = document.getElementById("theater-fav-btn");
@@ -502,10 +458,10 @@ app.get("/game/:slug", (req, res) => {
       const updateFavUI = () => {
         if (isFav()) {
           favBtn.classList.add("is-fav-active");
-          favBtn.innerHTML = \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Saved\`;
+          favBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Saved`;
         } else {
           favBtn.classList.remove("is-fav-active");
-          favBtn.innerHTML = \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Favorite\`;
+          favBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Favorite`;
         }
       };
 
@@ -576,12 +532,13 @@ app.get("/game/:slug", (req, res) => {
   <div class="side-drawer-content">
     <div class="side-drawer-header">
       <div class="brand">
+        <div class="brand__logo-wrap">
+          <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 370 80 L 190 80 L 80 190 L 80 322 L 190 432 L 340 432 L 430 342 L 430 256 L 310 256" fill="none" stroke="#f7f6f2" stroke-width="85" stroke-linecap="square" stroke-linejoin="miter"></path>
+            <polygon points="280,200 280,312 180,256" fill="#ff6600"></polygon>
+          </svg>
+        </div>
         <span class="brand__name">goar<span class="brand__name-xyz">xyz</span></span>
-        <span class="brand-icons-inline">
-          <svg class="brand-inline-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1" fill="currentColor"></circle><circle cx="18" cy="11" r="1" fill="currentColor"></circle></svg>
-          <svg class="brand-inline-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3" fill="currentColor"></circle><circle cx="18" cy="16" r="3" fill="currentColor"></circle></svg>
-          <svg class="brand-inline-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7" fill="currentColor"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-        </span>
       </div>
       <button id="btn-close-drawer" class="btn-close-drawer">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -613,186 +570,4 @@ app.get("/game/:slug", (req, res) => {
 </div>
 
 </body>
-</html>`;
-
-  res.send(gameHtml);
-});
-
-// Category Route
-app.get("/category/:slug", (req, res) => {
-  res.sendFile(path.join(_dirname, "index.html"));
-});
-
-// Privacy, Terms, etc.
-app.get(["/privacy", "/terms", "/imprint", "/delete-account"], (req, res) => {
-  res.sendFile(path.join(_dirname, "index.html"));
-});
-
-// Root
-app.get("/", (req, res) => {
-  res.sendFile(path.join(_dirname, "index.html"));
-});
-
-
-import YTMusic from 'ytmusic-api';
-import { HttpClient, GogoanimeProvider } from "anime-sdk";
-
-const ytmusic = new YTMusic();
-ytmusic.initialize();
-
-const animeHttpClient = new HttpClient();
-class CustomGogoanime extends GogoanimeProvider {
-  public searchAnime(query: string) {
-    return this.searchRaw(query);
-  }
-  public getUnits(id: string) {
-    return this.fetchContentUnitsRaw(id);
-  }
-}
-const gogoanime = new CustomGogoanime(animeHttpClient);
-
-app.get('/api/music/search', async (req, res) => {
-  try {
-    const q = req.query.q as string;
-    if (!q) return res.json([]);
-    const results = await ytmusic.search(q);
-    // Filter to only songs and videos
-    const playable = results.filter(r => r.type === 'SONG' || r.type === 'VIDEO').map(r => ({
-      id: r.videoId,
-      title: r.name,
-      artist: r.artist?.name || 'Unknown Artist',
-      thumbnail: r.thumbnails?.[r.thumbnails.length - 1]?.url || ''
-    }));
-    res.json(playable);
-  } catch (err) {
-    console.error('Music search error:', err);
-    res.status(500).json({ error: 'Search failed' });
-  }
-});
-
-// Full Streamable Anime API Endpoint
-app.get('/api/anime/stream', async (req, res) => {
-  const title = (req.query.title as string || '').trim();
-  const episode = Math.max(1, parseInt(req.query.episode as string || '1', 10));
-
-  if (!title) {
-    return res.status(400).json({ error: 'Anime title is required' });
-  }
-
-  const servers: Array<{ name: string; url: string; type: string }> = [];
-  let episodeTitle = `Episode ${episode}`;
-  let totalEpisodes = 12;
-  let episodesList: Array<{ number: number; title: string }> = [];
-
-  try {
-    // 1. Search anime provider with timeout
-    const searchPromise = gogoanime.searchAnime(title);
-    const timeoutPromise = new Promise<any[]>((_, reject) =>
-      setTimeout(() => reject(new Error('Search timeout')), 3500)
-    );
-    const searchRes = await Promise.race([searchPromise, timeoutPromise]).catch(() => []);
-
-    if (searchRes && searchRes.length > 0) {
-      const lower = title.toLowerCase();
-      // Match closest title
-      const matched = searchRes.find((s: any) => s.title.toLowerCase() === lower)
-        || searchRes.find((s: any) => s.title.toLowerCase().startsWith(lower))
-        || searchRes[0];
-
-      if (matched) {
-        const units = await gogoanime.getUnits(matched.id).catch(() => []);
-        if (units && units.length > 0) {
-          totalEpisodes = units.length;
-          episodesList = units.map((u: any) => ({
-            number: u.number,
-            title: u.title
-          }));
-
-          const epUnit = units.find((u: any) => u.number === episode) || units[0];
-          if (epUnit) {
-            episodeTitle = epUnit.title || `Episode ${episode}`;
-            const epPageUrl = "https://anineko.to" + (epUnit.id.startsWith("/") ? epUnit.id : "/" + epUnit.id);
-            const pageRes = await fetch(epPageUrl, {
-              headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" }
-            }).catch(() => null);
-
-            if (pageRes && pageRes.ok) {
-              const html = await pageRes.text();
-              const extracted = [...html.matchAll(/data-video="([^"]+)"/g)].map(m => m[1]);
-
-              const seenHosts = new Set<string>();
-              extracted.forEach((rawUrl) => {
-                try {
-                  const parsed = new URL(rawUrl.startsWith("//") ? "https:" + rawUrl : rawUrl);
-                  const host = parsed.hostname.toLowerCase();
-                  if (seenHosts.has(host)) return;
-                  seenHosts.add(host);
-
-                  let label = "Server Direct";
-                  if (host.includes("playmogo")) label = "Server 1 (Fast HD)";
-                  else if (host.includes("otakuhg")) label = "Server 2 (Mirror HD)";
-                  else if (host.includes("otakuvid")) label = "Server 3 (Stream HD)";
-                  else if (host.includes("bibiemb")) label = "Server 4 (Cloud)";
-                  else if (host.includes("vivibebe")) label = "Server 5 (Direct)";
-
-                  servers.push({
-                    name: label,
-                    url: rawUrl.startsWith("//") ? "https:" + rawUrl : rawUrl,
-                    type: "embed"
-                  });
-                } catch(e) {}
-              });
-            }
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error('Error in anime stream provider:', err);
-  }
-
-  // 2. Add MultiEmbed & VidSrc fallbacks
-  servers.push({
-    name: "Server MultiEmbed",
-    url: `https://multiembed.mov/?video_id=${encodeURIComponent(title)}&s=1&e=${episode}`,
-    type: "embed"
-  });
-
-  servers.push({
-    name: "Server VidSrc",
-    url: `https://vidsrc.xyz/embed/tv?imdb=${encodeURIComponent(title)}&season=1&episode=${episode}`,
-    type: "embed"
-  });
-
-  // 3. Add YouTube Stream fallback
-  try {
-    const ytQuery = `${title} Episode ${episode} English Sub full`;
-    const ytResults = await Promise.race([
-      ytmusic.search(ytQuery),
-      new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('YT timeout')), 2500))
-    ]).catch(() => []);
-
-    const topVideo = ytResults?.find((r: any) => r.type === 'VIDEO' || r.type === 'SONG');
-    if (topVideo && topVideo.videoId) {
-      servers.push({
-        name: "Server YouTube",
-        url: `https://www.youtube.com/embed/${topVideo.videoId}?autoplay=1`,
-        type: "youtube"
-      });
-    }
-  } catch(e) {}
-
-  res.json({
-    success: true,
-    title,
-    episode,
-    episodeTitle,
-    totalEpisodes,
-    episodes: episodesList,
-    servers
-  });
-});
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
-});
+</html>

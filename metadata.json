@@ -1,6 +1,6 @@
 {
   "name": "goarxyz",
-  "description": "Minimalist high-speed web gaming platform featuring 630+ instant games in matte black, bone white, and signature orange aesthetics.",
+  "description": "Unified digital entertainment hub featuring goarxyz Games, goarxyz Music, and goarxyz Anime in matte black, white, and electric orange aesthetics.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
