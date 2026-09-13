@@ -1,70 +1,37 @@
-<svg viewBox="0 0 512 512" width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <!-- Pattern of entertainment icons -->
-    <pattern id="entertainment-icons" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-      <!-- Gamepad 1 -->
-      <path d="M 10 14 C 8 14 6 16 6 19 C 6 23 8 28 10 30 C 11 31 13 30 14 29 L 17 26 L 23 26 L 26 29 C 27 30 29 31 30 30 C 32 28 34 23 34 19 C 34 16 32 14 30 14 Z" fill="#111111"/>
-      <rect x="10" y="19" width="6" height="2" fill="#ffffff"/>
-      <rect x="12" y="17" width="2" height="6" fill="#ffffff"/>
-      <circle cx="28" cy="18" r="1.2" fill="#ffffff"/>
-      <circle cx="26" cy="21" r="1.2" fill="#ffffff"/>
+<svg viewBox="0 0 380 90" width="380" height="90" xmlns="http://www.w3.org/2000/svg">
+  <rect width="380" height="90" rx="18" fill="#0c0d0f"/>
+  <rect x="2" y="2" width="376" height="86" rx="16" fill="none" stroke="#26282e" stroke-width="1.5"/>
 
-      <!-- Eighth Note -->
-      <path d="M 54 8 L 54 20 A 3 3 0 1 1 51 17.5 L 51 10 L 62 8 L 62 18 A 3 3 0 1 1 59 15.5 L 59 6.5 Z" fill="#111111"/>
+  <!-- Brand Typography -->
+  <text x="32" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="44" letter-spacing="-1.5">
+    <tspan fill="#ffffff">goar</tspan><tspan fill="#ff6600">xyz</tspan>
+  </text>
 
-      <!-- Play Screen / Video Frame -->
-      <rect x="64" y="26" width="13" height="9" rx="1.5" fill="#111111"/>
-      <polygon points="68,28.5 68,32.5 73,30.5" fill="#ffffff"/>
+  <!-- Divider -->
+  <line x1="220" y1="26" x2="220" y2="64" stroke="#2c2d33" stroke-width="2"/>
 
-      <!-- Single Note -->
-      <path d="M 38 42 L 38 52 A 2.8 2.8 0 1 1 35 49.5 L 35 42 L 41 40.5 L 41 45 Z" fill="#111111"/>
+  <!-- 3 Generic Category Icons Inline (Games, Music, Anime) -->
+  <g transform="translate(236, 32)" stroke="#ff6600" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Gamepad -->
+    <g transform="translate(0, 0)">
+      <rect x="2" y="4" width="22" height="14" rx="2" stroke="#ff6600" fill="#181a1f"/>
+      <path d="M6 11h4"/>
+      <path d="M8 9v4"/>
+      <circle cx="17" cy="11.5" r="1" fill="#ff6600"/>
+      <circle cx="20" cy="9.5" r="1" fill="#ff6600"/>
+    </g>
 
-      <!-- Gamepad 2 -->
-      <path d="M 50 56 C 48 56 46 58 46 61 C 46 65 48 70 50 72 C 51 73 53 72 54 71 L 57 68 L 63 68 L 66 71 C 67 72 69 73 70 72 C 72 70 74 65 74 61 C 74 58 72 56 70 56 Z" fill="#111111"/>
-      <rect x="50" y="61" width="6" height="2" fill="#ffffff"/>
-      <rect x="52" y="59" width="2" height="6" fill="#ffffff"/>
-      <circle cx="68" cy="60" r="1.2" fill="#ffffff"/>
-      <circle cx="66" cy="63" r="1.2" fill="#ffffff"/>
+    <!-- Music Note -->
+    <g transform="translate(38, 0)">
+      <path d="M7 19V5l12-2v14" stroke="#ffffff"/>
+      <circle cx="4" cy="19" r="3" fill="#ff6600" stroke="#ff6600"/>
+      <circle cx="16" cy="17" r="3" fill="#ff6600" stroke="#ff6600"/>
+    </g>
 
-      <!-- Media Screen 2 -->
-      <rect x="12" y="54" width="13" height="9" rx="1.5" fill="#111111"/>
-      <polygon points="16,56.5 16,60.5 21,58.5" fill="#ffffff"/>
-
-      <!-- Dice / Media block -->
-      <rect x="26" y="68" width="8" height="8" rx="1.2" fill="#111111"/>
-      <circle cx="30" cy="72" r="1.2" fill="#ffffff"/>
-
-      <!-- Small notes & accents -->
-      <circle cx="42" cy="18" r="1.2" fill="#111111"/>
-      <circle cx="10" cy="42" r="1.2" fill="#111111"/>
-      <circle cx="75" cy="48" r="1.2" fill="#111111"/>
-      <circle cx="42" cy="75" r="1.2" fill="#111111"/>
-      <path d="M 18 78 L 18 84 A 1.8 1.8 0 1 1 16 82.5 L 16 78 Z" fill="#111111"/>
-    </pattern>
-
-    <!-- Mask matching the exact octagonal G stroke -->
-    <mask id="g-mask">
-      <rect width="512" height="512" fill="black" />
-      <path d="M 364 80 L 188 80 L 80 188 L 80 324 L 188 432 L 344 432 L 432 344 L 432 260 L 310 260" 
-            fill="none" 
-            stroke="white" 
-            stroke-width="84" 
-            stroke-linecap="square" 
-            stroke-linejoin="miter" />
-    </mask>
-  </defs>
-
-  <!-- Solid white octagonal G base -->
-  <path d="M 364 80 L 188 80 L 80 188 L 80 324 L 188 432 L 344 432 L 432 344 L 432 260 L 310 260" 
-        fill="none" 
-        stroke="#ffffff" 
-        stroke-width="84" 
-        stroke-linecap="square" 
-        stroke-linejoin="miter" />
-
-  <!-- Icons pattern overlay clipped to the G -->
-  <rect width="512" height="512" fill="url(#entertainment-icons)" mask="url(#g-mask)" />
-
-  <!-- The vibrant brand orange triangle pointing LEFT in the center opening -->
-  <polygon points="344,214 344,298 252,256" fill="#ff6600" />
+    <!-- Anime / Video -->
+    <g transform="translate(76, 0)">
+      <rect x="2" y="4" width="22" height="15" rx="2" stroke="#ff6600" fill="#181a1f"/>
+      <polygon points="10,8 10,15 16,11.5" fill="#ffffff" stroke="#ffffff"/>
+    </g>
+  </g>
 </svg>

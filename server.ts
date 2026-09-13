@@ -392,7 +392,7 @@ app.get("/game/:slug", (req, res) => {
             <div class="hero-meta">
               <span class="hero-tag">Instant Play</span>
               <span class="hero-tag">Mobile & Desktop</span>
-              <span class="hero-tag">Famobi HTML5</span>
+              <span class="hero-tag">goarxyz HTML5 Engine</span>
             </div>
           </div>
           <p>${game.description}</p>
@@ -463,7 +463,7 @@ app.get("/game/:slug", (req, res) => {
 <footer class="site-footer">
       <div class="site-footer__inner">
         <div class="site-footer__left">
-          <p>© goarxyz / Famobi HTML5 Games. All rights reserved.</p>
+          <p>© 2026 goarxyz. All rights reserved. The Sovereign Entertainment Hub.</p>
         </div>
         <div class="site-footer__links">
           <a href="/">Home</a>
@@ -751,20 +751,20 @@ app.get('/api/anime/stream', async (req, res) => {
     console.error('Error in anime stream provider:', err);
   }
 
-  // 2. Add MultiEmbed & VidSrc fallbacks
+  // 2. Add Multi-Source fallbacks
   servers.push({
-    name: "Server MultiEmbed",
+    name: "Server 6 (Multi-HD)",
     url: `https://multiembed.mov/?video_id=${encodeURIComponent(title)}&s=1&e=${episode}`,
     type: "embed"
   });
 
   servers.push({
-    name: "Server VidSrc",
+    name: "Server 7 (Alt Stream)",
     url: `https://vidsrc.xyz/embed/tv?imdb=${encodeURIComponent(title)}&season=1&episode=${episode}`,
     type: "embed"
   });
 
-  // 3. Add YouTube Stream fallback
+  // 3. Add Global Stream fallback
   try {
     const ytQuery = `${title} Episode ${episode} English Sub full`;
     const ytResults = await Promise.race([
@@ -775,7 +775,7 @@ app.get('/api/anime/stream', async (req, res) => {
     const topVideo = ytResults?.find((r: any) => r.type === 'VIDEO' || r.type === 'SONG');
     if (topVideo && topVideo.videoId) {
       servers.push({
-        name: "Server YouTube",
+        name: "Server 8 (Global HD)",
         url: `https://www.youtube.com/embed/${topVideo.videoId}?autoplay=1`,
         type: "youtube"
       });
@@ -790,6 +790,199 @@ app.get('/api/anime/stream', async (req, res) => {
     totalEpisodes,
     episodes: episodesList,
     servers
+  });
+});
+
+// Enterprise Customer Telemetry & Analytics Event Pipeline (CDP / BigQuery compatible)
+interface TelemetryEvent {
+  id: string;
+  eventName: string;
+  userPseudoId: string;
+  sessionId: string;
+  timestamp: number;
+  consentGranted: boolean;
+  page: string;
+  properties: Record<string, any>;
+  ipAnonymized: string;
+}
+
+interface CustomerProfile {
+  userPseudoId: string;
+  visitCount: number;
+  firstSeen: number;
+  lastSeen: number;
+  isReturning: boolean;
+  referrer: string;
+  trafficChannel: string;
+  utmCampaign?: string;
+  utmSource?: string;
+  categoryAffinity: {
+    games: number;
+    music: number;
+    anime: number;
+  };
+  deviceType: string;
+  screenResolution: string;
+  language: string;
+  favoriteItems: string[];
+}
+
+const customerTelemetryStore: TelemetryEvent[] = [];
+const customerProfiles = new Map<string, CustomerProfile>();
+const MAX_STORED_EVENTS = 1000;
+
+app.post("/api/analytics/collect", express.json(), (req, res) => {
+  try {
+    const { eventName, userPseudoId, sessionId, consentGranted, page, properties } = req.body;
+    if (!eventName) {
+      return res.status(400).json({ error: "eventName is required" });
+    }
+
+    const rawIp = (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress || "0.0.0.0";
+    // Anonymize IP (BigQuery & GDPR standard: mask last octet)
+    const ipAnonymized = rawIp.split(",")[0].trim().replace(/\.\d+$/, ".0");
+
+    const uid = String(userPseudoId || "anon");
+    const props = typeof properties === "object" && properties !== null ? properties : {};
+
+    const eventRecord: TelemetryEvent = {
+      id: "evt_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now(),
+      eventName: String(eventName),
+      userPseudoId: uid,
+      sessionId: String(sessionId || "sess_default"),
+      timestamp: Date.now(),
+      consentGranted: Boolean(consentGranted),
+      page: String(page || "/"),
+      properties: props,
+      ipAnonymized
+    };
+
+    customerTelemetryStore.unshift(eventRecord);
+    if (customerTelemetryStore.length > MAX_STORED_EVENTS) {
+      customerTelemetryStore.pop();
+    }
+
+    // Update Customer Profile & Habit Tracking
+    if (uid !== "anon") {
+      let profile = customerProfiles.get(uid);
+      const now = Date.now();
+      if (!profile) {
+        // Derive traffic channel from referrer or UTM
+        const ref = String(props.referrer || "");
+        let channel = "Direct";
+        if (props.utm_source || props.utm_campaign) {
+          channel = "Paid / Campaign (" + (props.utm_source || "campaign") + ")";
+        } else if (ref.includes("google.") || ref.includes("bing.") || ref.includes("duckduckgo.")) {
+          channel = "Organic Search";
+        } else if (ref.includes("facebook.") || ref.includes("t.co") || ref.includes("twitter.") || ref.includes("instagram.") || ref.includes("tiktok.")) {
+          channel = "Social Media";
+        } else if (ref) {
+          channel = "Referral";
+        }
+
+        profile = {
+          userPseudoId: uid,
+          visitCount: Number(props.visitCount) || 1,
+          firstSeen: now,
+          lastSeen: now,
+          isReturning: Boolean(props.isReturning) || (Number(props.visitCount) > 1),
+          referrer: ref || "Direct / Bookmark",
+          trafficChannel: channel,
+          utmCampaign: props.utm_campaign ? String(props.utm_campaign) : undefined,
+          utmSource: props.utm_source ? String(props.utm_source) : undefined,
+          categoryAffinity: { games: 0, music: 0, anime: 0 },
+          deviceType: String(props.deviceType || "desktop"),
+          screenResolution: String(props.screenResolution || "unknown"),
+          language: String(props.language || "en"),
+          favoriteItems: []
+        };
+      } else {
+        profile.lastSeen = now;
+        profile.visitCount = Math.max(profile.visitCount, Number(props.visitCount) || (profile.visitCount + 1));
+        profile.isReturning = true;
+      }
+
+      // Track habit counters based on event
+      if (eventName.includes("game") || String(props.content_type) === "game") {
+        profile.categoryAffinity.games += 1;
+      }
+      if (eventName.includes("music") || String(props.content_type) === "music") {
+        profile.categoryAffinity.music += 1;
+      }
+      if (eventName.includes("anime") || String(props.content_type) === "anime") {
+        profile.categoryAffinity.anime += 1;
+      }
+      if (props.favorite_slug && !profile.favoriteItems.includes(String(props.favorite_slug))) {
+        profile.favoriteItems.push(String(props.favorite_slug));
+      }
+
+      customerProfiles.set(uid, profile);
+    }
+
+    res.json({ success: true, eventId: eventRecord.id, queued: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to log telemetry event" });
+  }
+});
+
+// Customer Intelligence & Returning Users Summary (for Ad Campaign optimization & UI Insights)
+app.get("/api/analytics/customer-insights", (req, res) => {
+  const allProfiles = Array.from(customerProfiles.values());
+  const totalProfiles = allProfiles.length;
+  const returningCount = allProfiles.filter(p => p.isReturning || p.visitCount > 1).length;
+  const newCount = Math.max(0, totalProfiles - returningCount);
+  const returningPercentage = totalProfiles > 0 ? Math.round((returningCount / totalProfiles) * 100) : 0;
+
+  // Traffic Channel breakdown
+  const channelBreakdown: Record<string, number> = {};
+  allProfiles.forEach(p => {
+    channelBreakdown[p.trafficChannel] = (channelBreakdown[p.trafficChannel] || 0) + 1;
+  });
+
+  // Category Affinity totals
+  const totalAffinities = { games: 0, music: 0, anime: 0 };
+  allProfiles.forEach(p => {
+    totalAffinities.games += p.categoryAffinity.games;
+    totalAffinities.music += p.categoryAffinity.music;
+    totalAffinities.anime += p.categoryAffinity.anime;
+  });
+
+  // Audience Segments ready for Google Ads / Meta Ads Lookalikes
+  const audienceSegments = {
+    highFrequencyGamers: allProfiles.filter(p => p.categoryAffinity.games >= 3).length,
+    audioLovers: allProfiles.filter(p => p.categoryAffinity.music >= 3).length,
+    animeBingers: allProfiles.filter(p => p.categoryAffinity.anime >= 3).length,
+    multiPlatformEnthusiasts: allProfiles.filter(p => p.categoryAffinity.games > 0 && p.categoryAffinity.music > 0 && p.categoryAffinity.anime > 0).length
+  };
+
+  res.json({
+    totalTrackedCustomers: totalProfiles,
+    newVisitors: newCount,
+    returningVisitors: returningCount,
+    returningRatioPercent: returningPercentage,
+    acquisitionChannels: channelBreakdown,
+    categoryAffinities: totalAffinities,
+    audienceSegments,
+    recentProfiles: allProfiles.slice(-15)
+  });
+});
+
+// Analytics Summary for administrative verification and Looker Studio export
+app.get("/api/analytics/summary", (req, res) => {
+  const totalEvents = customerTelemetryStore.length;
+  const eventCounts: Record<string, number> = {};
+  const activeSessions = new Set<string>();
+
+  customerTelemetryStore.forEach((e) => {
+    eventCounts[e.eventName] = (eventCounts[e.eventName] || 0) + 1;
+    if (e.sessionId) activeSessions.add(e.sessionId);
+  });
+
+  res.json({
+    totalEvents,
+    uniqueSessions: activeSessions.size,
+    eventDistribution: eventCounts,
+    recentEvents: customerTelemetryStore.slice(0, 20)
   });
 });
 

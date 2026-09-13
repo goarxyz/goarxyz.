@@ -30,16 +30,59 @@
     <meta name="twitter:title" content="goarxyz">
     <meta name="twitter:description" content="Unified digital entertainment hub featuring goarxyz Games, goarxyz Music, and goarxyz Anime in matte black, white, and electric orange aesthetics.">
     <meta name="twitter:image" content="/pwa-512x512.png">
-    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-XMWL358PZF"></script>
+    <!-- Google Consent Mode v2 & Google Tag Manager Pipeline -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        window.dataLayer.push(arguments);
-      }
+      function gtag() { window.dataLayer.push(arguments); }
       window.gtag = window.gtag || gtag;
+
+      // Read stored Google Consent Mode v2 status
+      var userGoogleConsent = null;
+      try {
+        userGoogleConsent = JSON.parse(localStorage.getItem('goarxyz_google_consent_v2'));
+      } catch(e) {}
+
+      if (userGoogleConsent && userGoogleConsent.status === 'all') {
+        gtag('consent', 'default', {
+          'ad_storage': 'granted',
+          'ad_user_data': 'granted',
+          'ad_personalization': 'granted',
+          'analytics_storage': 'granted',
+          'functionality_storage': 'granted',
+          'personalization_storage': 'granted',
+          'security_storage': 'granted'
+        });
+      } else if (userGoogleConsent && userGoogleConsent.status === 'custom') {
+        gtag('consent', 'default', {
+          'ad_storage': userGoogleConsent.ad_storage || 'denied',
+          'ad_user_data': userGoogleConsent.ad_user_data || 'denied',
+          'ad_personalization': userGoogleConsent.ad_personalization || 'denied',
+          'analytics_storage': userGoogleConsent.analytics_storage || 'denied',
+          'functionality_storage': 'granted',
+          'personalization_storage': userGoogleConsent.personalization_storage || 'denied',
+          'security_storage': 'granted'
+        });
+      } else {
+        // Strict enterprise default: Denied until user interaction
+        gtag('consent', 'default', {
+          'ad_storage': 'denied',
+          'ad_user_data': 'denied',
+          'ad_personalization': 'denied',
+          'analytics_storage': 'denied',
+          'functionality_storage': 'granted',
+          'personalization_storage': 'denied',
+          'security_storage': 'granted',
+          'wait_for_update': 500
+        });
+      }
+
       gtag('js', new Date());
-      gtag('config', 'G-XMWL358PZF');
+      gtag('config', 'G-XMWL358PZF', {
+        'send_page_view': true,
+        'cookie_flags': 'SameSite=None;Secure'
+      });
     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XMWL358PZF"></script>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
@@ -50,6 +93,12 @@
   <div id="hub-section" class="system-view is-active">
     <div class="hub-inner">
       <div class="hub-hero">
+        <div class="hub-tag-badge-row">
+          <div class="hub-tag-badge">
+            <span class="hub-pulse-dot"></span>
+            <span>Unified Entertainment Engine • goarxyz</span>
+          </div>
+        </div>
         <div class="brand-line-unified">
           <span class="brand-line-title">goar<span class="brand-accent">xyz</span></span>
           <div class="brand-line-icons" aria-label="Games, Music, and Video">
@@ -64,7 +113,40 @@
             </span>
           </div>
         </div>
-        <p class="hub-subtitle">The Unified Entertainment System</p>
+        <h1 class="hub-main-headline">The Sovereign Entertainment Hub</h1>
+        <p class="hub-subtitle">Engineered for zero friction. Switch seamlessly between 630+ instant games, lossless streaming music, and high-definition anime series.</p>
+        <div class="hub-quick-launcher">
+          <div class="hub-quick-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="hub-omni-search" class="hub-quick-input" placeholder="Jump into any game, music track, or anime series..." autocomplete="off">
+          </div>
+          <div class="hub-quick-pills">
+            <button class="hub-quick-pill" data-sys="games" data-cat="action">Action Games</button>
+            <button class="hub-quick-pill" data-sys="games" data-cat="puzzle">Puzzle Games</button>
+            <button class="hub-quick-pill" data-sys="music" data-genre="Pop">Pop Hits</button>
+            <button class="hub-quick-pill" data-sys="music" data-genre="Lo-Fi">Lo-Fi Beats</button>
+            <button class="hub-quick-pill" data-sys="anime" data-filter="top">Top Anime</button>
+            <button class="hub-quick-pill" data-sys="anime" data-genre="Action">Action Series</button>
+          </div>
+        </div>
+      </div>
+      <div class="hub-metrics-ribbon">
+        <div class="hub-metric-box">
+          <div class="hub-metric-val">630+</div>
+          <div class="hub-metric-lbl">Instant Web Games</div>
+        </div>
+        <div class="hub-metric-box">
+          <div class="hub-metric-val">10M+</div>
+          <div class="hub-metric-lbl">Tracks &amp; Playlists</div>
+        </div>
+        <div class="hub-metric-box">
+          <div class="hub-metric-val">2,500+</div>
+          <div class="hub-metric-lbl">Anime &amp; Series</div>
+        </div>
+        <div class="hub-metric-box">
+          <div class="hub-metric-val">0 ms</div>
+          <div class="hub-metric-lbl">Zero Friction</div>
+        </div>
       </div>
       <div class="hub-cards">
         <div class="hub-card" data-sys="games" id="hub-card-games">
@@ -94,6 +176,181 @@
           <div class="hub-card-cta">Watch Anime <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
         </div>
       </div>
+
+      <!-- Spotlight Section -->
+      <div class="hub-spotlight-section">
+        <div class="hub-section-heading">
+          <h2>Trending Now Across goarxyz</h2>
+          <span>Instant Jump</span>
+        </div>
+        <div class="hub-spotlights-grid">
+          <div class="hub-spotlight-item" data-hub-jump="game" data-slug="temple-blocks">
+            <img src="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/TempleBlocksTeaser.jpg" alt="Temple Blocks" class="hub-spotlight-thumb" loading="lazy">
+            <div class="hub-spotlight-info">
+              <span class="hub-spotlight-badge">Games Spotlight</span>
+              <h3 class="hub-spotlight-title">Temple Blocks</h3>
+              <p class="hub-spotlight-sub">Tactical puzzle adventure</p>
+            </div>
+          </div>
+          <div class="hub-spotlight-item" data-hub-jump="music" data-query="trending hits">
+            <img src="/pwa-192x192.png" alt="Music Hits" class="hub-spotlight-thumb" loading="lazy">
+            <div class="hub-spotlight-info">
+              <span class="hub-spotlight-badge">Music Spotlight</span>
+              <h3 class="hub-spotlight-title">Global Top Charts</h3>
+              <p class="hub-spotlight-sub">The hottest tracks right now</p>
+            </div>
+          </div>
+          <div class="hub-spotlight-item" data-hub-jump="anime" data-title="Jujutsu Kaisen">
+            <img src="/pwa-192x192.png" alt="Anime Spotlight" class="hub-spotlight-thumb" loading="lazy">
+            <div class="hub-spotlight-info">
+              <span class="hub-spotlight-badge">Anime Spotlight</span>
+              <h3 class="hub-spotlight-title">Jujutsu Kaisen</h3>
+              <p class="hub-spotlight-sub">Full multi-server HD stream</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Media Showcase (Generic Game, Music, and Anime Video Clips) -->
+      <div class="hub-showcase-section" id="hub-media-showcase">
+        <div class="hub-section-heading">
+          <h2>Live Media Showcase</h2>
+          <span>Instant Video Previews</span>
+        </div>
+        <div class="hub-showcase-grid">
+          <!-- Game Video Clip Card -->
+          <div class="showcase-card showcase-card--game">
+            <div class="showcase-video-wrap">
+              <video class="showcase-video" playsinline loop muted preload="metadata" poster="https://img.cdn.famobi.com/portal/html5games/images/tmp/180/TempleBlocksTeaser.jpg">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4">
+              </video>
+              <div class="showcase-video-overlay">
+                <button type="button" class="showcase-play-btn" aria-label="Toggle preview playback">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </button>
+                <button type="button" class="showcase-audio-btn" aria-label="Toggle audio">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                </button>
+                <span class="showcase-tag">Game Preview</span>
+              </div>
+            </div>
+            <div class="showcase-info">
+              <div class="showcase-meta">
+                <span class="showcase-badge">HTML5 Engine</span>
+                <span class="showcase-time">0:12 Clip</span>
+              </div>
+              <h3 class="showcase-title">Action &amp; Arcade Preview</h3>
+              <p class="showcase-desc">High-framerate interactive gameplay rendered directly in your browser without downloads.</p>
+              <button type="button" class="showcase-cta-btn" onclick="switchSystem('games');">
+                <span>Play Games</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Music Video Clip Card -->
+          <div class="showcase-card showcase-card--music">
+            <div class="showcase-video-wrap">
+              <video class="showcase-video" playsinline loop muted preload="metadata" poster="/pwa-192x192.png">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+              </video>
+              <div class="showcase-video-overlay">
+                <button type="button" class="showcase-play-btn" aria-label="Toggle preview playback">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </button>
+                <button type="button" class="showcase-audio-btn" aria-label="Toggle audio">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                </button>
+                <span class="showcase-tag">Music Clip</span>
+              </div>
+            </div>
+            <div class="showcase-info">
+              <div class="showcase-meta">
+                <span class="showcase-badge">Lossless Audio</span>
+                <span class="showcase-time">0:10 Clip</span>
+              </div>
+              <h3 class="showcase-title">Trending Soundscapes</h3>
+              <p class="showcase-desc">Immersive synchronized visualizer and dynamic lossless audio streaming across global charts.</p>
+              <button type="button" class="showcase-cta-btn" onclick="switchSystem('music');">
+                <span>Open Music</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Anime Video Clip Card -->
+          <div class="showcase-card showcase-card--anime">
+            <div class="showcase-video-wrap">
+              <video class="showcase-video" playsinline loop muted preload="metadata" poster="/pwa-192x192.png">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
+              </video>
+              <div class="showcase-video-overlay">
+                <button type="button" class="showcase-play-btn" aria-label="Toggle preview playback">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </button>
+                <button type="button" class="showcase-audio-btn" aria-label="Toggle audio">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                </button>
+                <span class="showcase-tag">Anime Trailer</span>
+              </div>
+            </div>
+            <div class="showcase-info">
+              <div class="showcase-meta">
+                <span class="showcase-badge">Multi-Server HD</span>
+                <span class="showcase-time">0:15 Clip</span>
+              </div>
+              <h3 class="showcase-title">Cinematic Anime Sequence</h3>
+              <p class="showcase-desc">Real-time episode streaming with seamless server failover and high-bitrate video playback.</p>
+              <button type="button" class="showcase-cta-btn" onclick="switchSystem('anime');">
+                <span>Stream Anime</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Pillars Section -->
+      <div class="hub-vision-section">
+        <div class="hub-pillars-grid">
+          <div class="hub-pillar-card">
+            <div class="hub-pillar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <h3 class="hub-pillar-title">Zero Friction</h3>
+            <p class="hub-pillar-desc">Browser-native execution without mandatory sign-ups, installs, or delays. Pure play from the first click.</p>
+          </div>
+          <div class="hub-pillar-card">
+            <div class="hub-pillar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+            </div>
+            <h3 class="hub-pillar-title">Unified Aesthetics</h3>
+            <p class="hub-pillar-desc">Matte black precision, high-contrast typography, and electric orange accents consistent across every medium.</p>
+          </div>
+          <div class="hub-pillar-card">
+            <div class="hub-pillar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <h3 class="hub-pillar-title">Lossless Media Engine</h3>
+            <p class="hub-pillar-desc">Direct low-latency streams, high-framerate HTML5 games, and real-time audio playback without delay.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hub Footer -->
+      <footer class="hub-footer">
+        <div class="brand-line-unified" style="font-size: 1.6rem; gap: 8px;">
+          <span class="brand-line-title">goar<span class="brand-accent">xyz</span></span>
+        </div>
+        <div class="hub-footer-links">
+          <button type="button" class="hub-footer-link" id="btn-open-platform-settings">Platform Settings</button>
+          <button type="button" class="hub-footer-link" id="btn-open-privacy">Privacy Policy</button>
+          <button type="button" class="hub-footer-link" id="btn-open-terms">Terms of Service</button>
+          <button type="button" class="hub-footer-link" id="btn-open-cookies">Cookie Policy</button>
+          <button type="button" class="hub-footer-link" id="btn-open-consent-settings">Cookie Preferences</button>
+        </div>
+        <p class="hub-footer-copy">&copy; 2026 goarxyz. All rights reserved. The Unified Digital Entertainment System.</p>
+      </footer>
     </div>
   </div>
 
@@ -8839,12 +9096,14 @@
           </div>
         </div>
         <nav class="system-nav">
-          <a href="#" class="nav-item is-active" id="btn-music-home">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Home
-          </a>
-          <a href="#" class="nav-item" id="btn-music-search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Search
-          </a>
+          <a href="#" class="nav-item is-active" id="btn-music-home">Home</a>
+          <a href="#" class="nav-item" id="btn-music-pop">Pop</a>
+          <a href="#" class="nav-item" id="btn-music-hiphop">Hip-Hop</a>
+          <a href="#" class="nav-item" id="btn-music-rock">Rock</a>
+          <a href="#" class="nav-item" id="btn-music-electronic">Electronic</a>
+          <a href="#" class="nav-item" id="btn-music-lofi">Lo-Fi</a>
+          <a href="#" class="nav-item" id="btn-music-rnb">R&amp;B</a>
+          <a href="#" class="nav-item" id="btn-music-indie">Indie</a>
         </nav>
       </aside>
       <main class="system-main">
@@ -8852,19 +9111,62 @@
           <div class="system-header-row">
             <div class="system-search">
               <svg class="system-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" id="music-search-input" placeholder="What do you want to listen to?" autocomplete="off">
+              <input type="text" id="music-search-input" placeholder="Search tracks, artists, or genres..." autocomplete="off">
             </div>
           </div>
           <div class="system-chips" id="music-genre-chips">
-            <button class="chip-btn is-active" data-query="trending hits">🔥 Trending</button>
-            <button class="chip-btn" data-query="lofi hip hop chill">☕ Lofi Beats</button>
-            <button class="chip-btn" data-query="gaming ost synthwave">🎮 Gaming OST</button>
-            <button class="chip-btn" data-query="phonk drift">⚡ Phonk</button>
-            <button class="chip-btn" data-query="anime openings ost">🌸 Anime Hits</button>
-            <button class="chip-btn" data-query="synthwave retrowave">🎧 Synthwave</button>
+            <button class="chip-btn is-active" data-query="trending hits">Trending</button>
+            <button class="chip-btn" data-query="Pop hits">Pop</button>
+            <button class="chip-btn" data-query="Hip Hop">Hip-Hop</button>
+            <button class="chip-btn" data-query="Rock classics">Rock</button>
+            <button class="chip-btn" data-query="Electronic dance music">Electronic</button>
+            <button class="chip-btn" data-query="lofi chill beats">Lo-Fi Beats</button>
+            <button class="chip-btn" data-query="R&B soul">R&amp;B</button>
+            <button class="chip-btn" data-query="Indie alternative">Indie</button>
+            <button class="chip-btn" data-query="Synthwave chillstep">Synthwave</button>
           </div>
         </header>
         <div class="system-content music-content">
+          <section class="featured-carousel-section" id="music-featured-section">
+            <div class="carousel-header">
+              <h2 class="carousel-title">Featured Soundtracks &amp; Mixes</h2>
+            </div>
+            <div class="carousel-track-container">
+              <div class="carousel-track" id="music-featured-track">
+                <article class="featured-card" data-query="trending hits">
+                  <div class="featured-card__bg" style="background: linear-gradient(135deg, #2b1405 0%, #0c0c0e 100%);"></div>
+                  <div class="featured-card__content">
+                    <span class="featured-card__tag">Trending Now</span>
+                    <h3 class="featured-card__title">Global Chart Toppers</h3>
+                    <p class="featured-card__desc">The highest streamed hits around the world, updated daily.</p>
+                    <button class="btn btn--primary featured-play-btn" data-query="trending hits">Listen Now</button>
+                  </div>
+                </article>
+                <article class="featured-card" data-query="lofi chill beats">
+                  <div class="featured-card__bg" style="background: linear-gradient(135deg, #101c2b 0%, #0c0c0e 100%);"></div>
+                  <div class="featured-card__content">
+                    <span class="featured-card__tag">Focus &amp; Chill</span>
+                    <h3 class="featured-card__title">Midnight Lo-Fi Radio</h3>
+                    <p class="featured-card__desc">Smooth downtempo instrumental beats designed for deep work.</p>
+                    <button class="btn btn--primary featured-play-btn" data-query="lofi chill beats">Listen Now</button>
+                  </div>
+                </article>
+                <article class="featured-card" data-query="synthwave retrowave">
+                  <div class="featured-card__bg" style="background: linear-gradient(135deg, #2a082a 0%, #0c0c0e 100%);"></div>
+                  <div class="featured-card__content">
+                    <span class="featured-card__tag">Electronic Drift</span>
+                    <h3 class="featured-card__title">Neon Retro Wave</h3>
+                    <p class="featured-card__desc">80s analog synthesizers and cyberpunk driving frequencies.</p>
+                    <button class="btn btn--primary featured-play-btn" data-query="synthwave retrowave">Listen Now</button>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+          <div class="section-title-wrap" style="display: flex; align-items: center; justify-content: space-between; margin: 18px 0 14px;">
+            <h2 class="carousel-title" id="music-section-title" style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em;">Trending Tracks</h2>
+            <span class="system-count-badge" id="music-count-badge" style="font-size: 0.78rem; font-weight: 600; background: var(--surface-2); padding: 4px 10px; border-radius: 9999px; color: var(--text-dim);">Live Catalog</span>
+          </div>
           <div id="music-loading" style="display:none; text-align:center; padding:40px; color:var(--text-dim);">Loading tracks...</div>
           <div id="music-grid" class="spotify-grid"></div>
         </div>
@@ -8920,9 +9222,14 @@
           </div>
         </div>
         <nav class="system-nav">
-          <a href="#" class="nav-item is-active" id="btn-anime-home">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Discover
-          </a>
+          <a href="#" class="nav-item is-active" id="btn-anime-home">Home</a>
+          <a href="#" class="nav-item" id="btn-anime-top">Top Airing</a>
+          <a href="#" class="nav-item" id="btn-anime-popular">Popular</a>
+          <a href="#" class="nav-item" id="btn-anime-action">Action</a>
+          <a href="#" class="nav-item" id="btn-anime-adventure">Adventure</a>
+          <a href="#" class="nav-item" id="btn-anime-scifi">Sci-Fi</a>
+          <a href="#" class="nav-item" id="btn-anime-fantasy">Fantasy</a>
+          <a href="#" class="nav-item" id="btn-anime-movies">Movies</a>
         </nav>
       </aside>
       <main class="system-main">
@@ -8934,15 +9241,58 @@
             </div>
           </div>
           <div class="system-chips" id="anime-genre-chips">
-            <button class="chip-btn is-active" data-filter="top">⭐ Top Airing</button>
-            <button class="chip-btn" data-filter="bypopularity">🔥 Most Popular</button>
-            <button class="chip-btn" data-filter="movie">🎬 Movies</button>
-            <button class="chip-btn" data-query="Action">⚔️ Action</button>
-            <button class="chip-btn" data-query="Fantasy">✨ Fantasy</button>
-            <button class="chip-btn" data-query="Shounen">🔥 Shounen</button>
+            <button class="chip-btn is-active" data-filter="top">Top Airing</button>
+            <button class="chip-btn" data-filter="bypopularity">Most Popular</button>
+            <button class="chip-btn" data-filter="movie">Movies</button>
+            <button class="chip-btn" data-query="Action">Action</button>
+            <button class="chip-btn" data-query="Adventure">Adventure</button>
+            <button class="chip-btn" data-query="Fantasy">Fantasy</button>
+            <button class="chip-btn" data-query="Sci-Fi">Sci-Fi</button>
+            <button class="chip-btn" data-query="Drama">Drama</button>
+            <button class="chip-btn" data-query="Comedy">Comedy</button>
           </div>
         </header>
         <div class="system-content anime-content">
+          <section class="featured-carousel-section" id="anime-featured-section">
+            <div class="carousel-header">
+              <h2 class="carousel-title">Featured Series &amp; Premieres</h2>
+            </div>
+            <div class="carousel-track-container">
+              <div class="carousel-track" id="anime-featured-track">
+                <article class="featured-card" data-anime-title="Jujutsu Kaisen">
+                  <div class="featured-card__bg" style="background: linear-gradient(135deg, #2b0808 0%, #0c0c0e 100%);"></div>
+                  <div class="featured-card__content">
+                    <span class="featured-card__tag">Top Rated</span>
+                    <h3 class="featured-card__title">Jujutsu Kaisen</h3>
+                    <p class="featured-card__desc">Supernatural curse battles with multi-server HD streaming.</p>
+                    <button class="btn btn--primary featured-anime-play" data-anime-title="Jujutsu Kaisen">Stream Series</button>
+                  </div>
+                </article>
+                <article class="featured-card" data-anime-title="Chainsaw Man">
+                  <div class="featured-card__bg" style="background: linear-gradient(135deg, #2b1704 0%, #0c0c0e 100%);"></div>
+                  <div class="featured-card__content">
+                    <span class="featured-card__tag">Action Premiere</span>
+                    <h3 class="featured-card__title">Chainsaw Man</h3>
+                    <p class="featured-card__desc">High-octane devil hunting saga with uncut sub and dub streams.</p>
+                    <button class="btn btn--primary featured-anime-play" data-anime-title="Chainsaw Man">Stream Series</button>
+                  </div>
+                </article>
+                <article class="featured-card" data-anime-title="Solo Leveling">
+                  <div class="featured-card__bg" style="background: linear-gradient(135deg, #07172b 0%, #0c0c0e 100%);"></div>
+                  <div class="featured-card__content">
+                    <span class="featured-card__tag">Global Phenomenon</span>
+                    <h3 class="featured-card__title">Solo Leveling</h3>
+                    <p class="featured-card__desc">From the weakest hunter to humanity's ultimate monarch.</p>
+                    <button class="btn btn--primary featured-anime-play" data-anime-title="Solo Leveling">Stream Series</button>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+          <div class="section-title-wrap" style="display: flex; align-items: center; justify-content: space-between; margin: 18px 0 14px;">
+            <h2 class="carousel-title" id="anime-section-title" style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em;">Anime Catalog</h2>
+            <span class="system-count-badge" id="anime-count-badge" style="font-size: 0.78rem; font-weight: 600; background: var(--surface-2); padding: 4px 10px; border-radius: 9999px; color: var(--text-dim);">Live HD Servers</span>
+          </div>
           <div id="anime-loading" style="display:none; text-align:center; padding:40px; color:var(--text-dim);">Loading anime...</div>
           <div id="anime-grid" class="anime-grid"></div>
         </div>
@@ -8951,14 +9301,18 @@
     
     <div id="anime-modal" class="anime-modal" style="display:none;">
       <div class="anime-modal-content">
-        <button id="anime-modal-close">✕</button>
+        <button id="anime-modal-close" aria-label="Close details">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <div id="anime-modal-body"></div>
       </div>
     </div>
     
     <div id="anime-player-modal" class="anime-player-modal" style="display:none;">
       <div class="anime-player-content">
-        <button id="anime-player-close" aria-label="Close Player">✕</button>
+        <button id="anime-player-close" aria-label="Close Player">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <div class="anime-player-layout">
           <div class="anime-player-video-section">
             <div class="anime-player-video-wrapper">
@@ -9012,7 +9366,7 @@
     <span>Hub</span>
   </a>
   <a href="#games" class="bottom-nav-item" id="sys-btn-games">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><path d="M15 13h.01"></path><path d="M18 11h.01"></path></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1"></circle><circle cx="18" cy="11" r="1"></circle></svg>
     <span>Games</span>
   </a>
   <a href="#music" class="bottom-nav-item" id="sys-btn-music">
@@ -9037,7 +9391,9 @@
     
     <div class="pwa-modal-backdrop" id="pwa-ios-modal">
       <div class="pwa-modal">
-        <button type="button" class="pwa-modal__close" id="pwa-modal-close" aria-label="Close">✕</button>
+        <button type="button" class="pwa-modal__close" id="pwa-modal-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
         <div class="pwa-modal__header">
           <img src="/apple-touch-icon.png" alt="goarxyz" class="pwa-modal__icon">
           <div>
@@ -9060,6 +9416,317 @@
           </li>
         </ul>
         <button type="button" class="pwa-modal__btn" id="pwa-modal-got-it">Got it</button>
+      </div>
+    </div>
+
+    <!-- Legal Policy Modal Container -->
+    <div id="legal-policy-modal" class="legal-modal-backdrop" style="display:none;">
+      <div class="legal-modal-card">
+        <div class="legal-modal-header">
+          <div class="brand-line-unified" style="font-size: 1.35rem;">
+            <span class="brand-line-title">goar<span class="brand-accent">xyz</span></span>
+          </div>
+          <button type="button" id="btn-close-legal-modal" class="legal-modal-close" aria-label="Close modal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="legal-modal-body" id="legal-modal-body-content">
+          <!-- Dynamic injected content for Privacy, Terms, Cookies -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Cookie Preferences Modal -->
+    <div id="cookie-preferences-modal" class="legal-modal-backdrop" style="display:none;">
+      <div class="legal-modal-card" style="max-width: 580px;">
+        <div class="legal-modal-header">
+          <h3 style="font-size: 1.25rem; font-weight: 700;">Cookie Preferences</h3>
+          <button type="button" id="btn-close-cookie-prefs" class="legal-modal-close" aria-label="Close preferences">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="legal-modal-body">
+          <p style="color: var(--text-dim); font-size: 0.92rem; margin-bottom: 20px;">
+            goarxyz respects your digital privacy. Customize your cookie settings below. Essential cookies are required to deliver basic site functionality, offline caching, and responsive media controls.
+          </p>
+          <div class="cookie-pref-item">
+            <div class="cookie-pref-text">
+              <h4>Strictly Necessary Cookies</h4>
+              <p>Essential for session persistence, favorite media storage, and offline PWA service worker caching. Always active.</p>
+            </div>
+            <input type="checkbox" checked disabled class="cookie-pref-toggle">
+          </div>
+          <div class="cookie-pref-item">
+            <div class="cookie-pref-text">
+              <h4>Analytics &amp; Performance Cookies</h4>
+              <p>Anonymized usage analytics and telemetry through Google Tag Manager to diagnose streaming quality and latency.</p>
+            </div>
+            <input type="checkbox" id="pref-analytics-toggle" checked class="cookie-pref-toggle">
+          </div>
+    <!-- Google-style Consent Preferences Modal (Google CMP) -->
+    <div id="cookie-preferences-modal" class="legal-modal-backdrop" style="display:none;">
+      <div class="legal-modal-card google-cmp-dialog" style="max-width: 640px;">
+        <div class="google-cmp-dialog__header">
+          <div class="google-cmp-brand">
+            <span class="brand-line-title" style="font-size: 1.15rem;">goar<span class="brand-accent">xyz</span></span>
+            <span class="google-cmp-badge">Google Consent Mode v2</span>
+          </div>
+          <h3 class="google-cmp-title">Customize privacy choices</h3>
+          <p class="google-cmp-subtitle">
+            Choose whether to allow goarxyz and its technology partners (including Google Tag Manager and Google Analytics) to collect data for the purposes described below. You can update these settings at any time.
+          </p>
+        </div>
+        <div class="google-cmp-dialog__body">
+          <div class="google-pref-block">
+            <div class="google-pref-block__header">
+              <div>
+                <h4 class="google-pref-block__title">Strictly Necessary &amp; Security</h4>
+                <p class="google-pref-block__signals">Signals: <code>security_storage</code>, <code>functionality_storage</code></p>
+              </div>
+              <span class="google-pref-badge-fixed">Always On</span>
+            </div>
+            <p class="google-pref-block__desc">
+              Essential for core site features, routing server streams, protecting against abuse, and caching games offline via the service worker.
+            </p>
+          </div>
+
+          <div class="google-pref-block">
+            <div class="google-pref-block__header">
+              <div>
+                <h4 class="google-pref-block__title">Audience Measurement &amp; Performance (GA4 &amp; GTM)</h4>
+                <p class="google-pref-block__signals">Signal: <code>analytics_storage</code></p>
+              </div>
+              <label class="google-switch">
+                <input type="checkbox" id="pref-analytics-toggle" checked>
+                <span class="google-slider"></span>
+              </label>
+            </div>
+            <p class="google-pref-block__desc">
+              Allows Google Analytics 4 and Tag Manager to measure site telemetry, loading speeds, streaming latency, and game popularity to continuously improve performance.
+            </p>
+          </div>
+
+          <div class="google-pref-block">
+            <div class="google-pref-block__header">
+              <div>
+                <h4 class="google-pref-block__title">Personalized Content &amp; Media State</h4>
+                <p class="google-pref-block__signals">Signal: <code>personalization_storage</code></p>
+              </div>
+              <label class="google-switch">
+                <input type="checkbox" id="pref-personalization-toggle" checked>
+                <span class="google-slider"></span>
+              </label>
+            </div>
+            <p class="google-pref-block__desc">
+              Remembers saved favorites, volume settings, audio playlists, and recently streamed anime episodes across visits.
+            </p>
+          </div>
+
+          <div class="google-pref-block">
+            <div class="google-pref-block__header">
+              <div>
+                <h4 class="google-pref-block__title">Google Partner &amp; Advertising Telemetry</h4>
+                <p class="google-pref-block__signals">Signals: <code>ad_storage</code>, <code>ad_user_data</code>, <code>ad_personalization</code></p>
+              </div>
+              <label class="google-switch">
+                <input type="checkbox" id="pref-ads-toggle" checked>
+                <span class="google-slider"></span>
+              </label>
+            </div>
+            <p class="google-pref-block__desc">
+              Enables Google partner conversion tags and ad measurement signals to evaluate campaign effectiveness and support free game licensing.
+            </p>
+          </div>
+        </div>
+        <div class="google-cmp-dialog__footer">
+          <button type="button" id="cookie-dialog-reject-all" class="google-btn google-btn--outlined">Reject all</button>
+          <button type="button" id="btn-save-cookie-prefs" class="google-btn google-btn--outlined">Confirm choices</button>
+          <button type="button" id="cookie-dialog-accept-all" class="google-btn google-btn--primary">Accept all</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Google CMP Banner Design (Funding Choices / Google Dark Standard) -->
+    <div id="cookie-consent-bar" class="google-cmp-banner" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="google-cmp-heading">
+      <div class="google-cmp-banner__card">
+        <div class="google-cmp-banner__header">
+          <div class="brand-line-unified" style="font-size: 1.15rem; margin-bottom: 6px;">
+            <span class="brand-line-title">goar<span class="brand-accent">xyz</span></span>
+            <span class="google-cmp-tag">Google Tag Manager &amp; GA4</span>
+          </div>
+          <h2 id="google-cmp-heading" class="google-cmp-heading">Before you continue to goarxyz</h2>
+        </div>
+        
+        <div class="google-cmp-banner__body">
+          <p>We use cookies and data to:</p>
+          <ul class="google-cmp-list">
+            <li>Deliver and maintain Google Tag Manager and core platform services</li>
+            <li>Track outages and protect against spam, fraud, and abuse</li>
+            <li>Measure audience engagement and site statistics to understand how our entertainment services are used and enhance their quality</li>
+          </ul>
+          <p class="google-cmp-secondary-note">
+            If you choose to <strong>"Accept all"</strong>, we will also use cookies and data to personalize content, maintain custom playlists, and evaluate partner telemetry according to your preferences. Select <strong>"More options"</strong> to customize your choices or review our <a href="#" id="link-bar-privacy-policy">Privacy Policy</a> and <a href="#" id="link-bar-cookie-policy">Cookie Policy</a> at any time.
+          </p>
+        </div>
+
+        <div class="google-cmp-banner__actions">
+          <button type="button" id="cookie-reject-all" class="google-btn google-btn--outlined">Reject all</button>
+          <button type="button" id="cookie-manage-prefs" class="google-btn google-btn--outlined">More options</button>
+          <button type="button" id="cookie-accept-all" class="google-btn google-btn--primary">Accept all</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- In-App Game Theater Iframe Modal -->
+    <div id="goarxyz-game-modal" class="game-theater-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
+      <div class="game-theater-modal__backdrop" id="game-modal-backdrop"></div>
+      <div class="game-theater-modal__window">
+        <header class="game-theater-modal__header">
+          <div class="game-theater-modal__brand">
+            <span class="brand-line-title" style="font-size: 1.15rem;">goar<span class="brand-accent">xyz</span></span>
+            <span class="game-theater-modal__sep">/</span>
+            <span id="game-modal-title" class="game-theater-modal__game-title">Game Title</span>
+            <span id="game-modal-badge" class="game-theater-modal__badge">Instant Play</span>
+          </div>
+          <div class="game-theater-modal__controls">
+            <button type="button" id="btn-game-modal-fav" class="game-theater-btn" title="Add to Favorites">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              <span>Favorite</span>
+            </button>
+            <button type="button" id="btn-game-modal-reload" class="game-theater-btn" title="Reload Game">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              <span>Reload</span>
+            </button>
+            <button type="button" id="btn-game-modal-fullscreen" class="game-theater-btn" title="Toggle Fullscreen">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+              <span>Fullscreen</span>
+            </button>
+            <button type="button" id="btn-game-modal-close" class="game-theater-btn game-theater-btn--close" title="Close Game (Esc)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+        </header>
+        <div class="game-theater-modal__frame-wrap" id="game-modal-frame-wrap">
+          <div id="game-modal-loader" class="game-theater-modal__loader">
+            <div class="game-theater-modal__spinner"></div>
+            <span>Loading game engine...</span>
+          </div>
+          <iframe id="goarxyz-inapp-game-frame" src="about:blank" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Settings Modal -->
+    <div id="platform-settings-modal" class="legal-modal-backdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+      <div class="legal-modal-card platform-settings-card" style="max-width: 660px;">
+        <div class="legal-modal-header" style="border-bottom: 1px solid #3c4043; padding-bottom: 16px;">
+          <div class="brand-line-unified" style="font-size: 1.25rem;">
+            <span class="brand-line-title">goar<span class="brand-accent">xyz</span></span>
+            <span class="google-cmp-badge" style="margin-left: 8px;">Platform Settings</span>
+          </div>
+          <button type="button" id="btn-close-settings-modal" class="legal-modal-close" aria-label="Close settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="legal-modal-body platform-settings-body">
+          <!-- Section 1: Audience & Customer Intelligence Diagnostics (Live) -->
+          <div class="settings-section">
+            <h4 class="settings-section__title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;margin-right:6px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+              Audience &amp; Customer Intelligence (Live)
+            </h4>
+            <p class="settings-section__desc">Real-time telemetry showing your returning visitor profile, acquisition channel, and engagement habits.</p>
+            <div class="settings-diagnostics-grid">
+              <div class="diag-card">
+                <span class="diag-label">Customer Pseudo-ID</span>
+                <span class="diag-val" id="diag-customer-id">Generating...</span>
+              </div>
+              <div class="diag-card">
+                <span class="diag-label">Visitor Frequency</span>
+                <span class="diag-val" id="diag-visitor-status">Detecting...</span>
+              </div>
+              <div class="diag-card">
+                <span class="diag-label">Traffic Channel</span>
+                <span class="diag-val" id="diag-traffic-channel">Direct / Organic</span>
+              </div>
+              <div class="diag-card">
+                <span class="diag-label">Top Affinity</span>
+                <span class="diag-val" id="diag-top-affinity">Games &amp; Music</span>
+              </div>
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <button type="button" id="btn-settings-open-cmp" class="google-btn google-btn--outlined" style="height: 32px; font-size: 0.8rem;">Review Google Consent Choices</button>
+              <button type="button" id="btn-copy-customer-id" class="google-btn google-btn--outlined" style="height: 32px; font-size: 0.8rem;">Copy Customer ID</button>
+            </div>
+          </div>
+
+          <!-- Section 2: Playback & Streaming Engine -->
+          <div class="settings-section">
+            <h4 class="settings-section__title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;margin-right:6px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Playback &amp; Streaming Engine
+            </h4>
+            <div class="settings-row">
+              <div>
+                <strong class="settings-row__label">Trailer &amp; Video Auto-Preview</strong>
+                <p class="settings-row__sub">Automatically play video preview clips when browsing spotlights</p>
+              </div>
+              <label class="google-switch">
+                <input type="checkbox" id="setting-autopreview-toggle" checked>
+                <span class="google-slider"></span>
+              </label>
+            </div>
+
+            <div class="settings-row">
+              <div>
+                <strong class="settings-row__label">Audio Streaming Bitrate</strong>
+                <p class="settings-row__sub">Select fidelity for lossless music playback</p>
+              </div>
+              <select id="setting-audio-quality" class="settings-select">
+                <option value="high" selected>Lossless HD (320 kbps)</option>
+                <option value="standard">Standard (128 kbps)</option>
+                <option value="data-saver">Data Saver (64 kbps)</option>
+              </select>
+            </div>
+
+            <div class="settings-row">
+              <div>
+                <strong class="settings-row__label">Default Anime Stream Mirror</strong>
+                <p class="settings-row__sub">Preferred content routing cluster</p>
+              </div>
+              <select id="setting-default-server" class="settings-select">
+                <option value="Server 1 Fast HD" selected>Server 1 Fast HD</option>
+                <option value="Server 2 Mirror HD">Server 2 Mirror HD</option>
+                <option value="Server 3 Stream HD">Server 3 Stream HD</option>
+                <option value="Server 4 Cloud">Server 4 Cloud</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Section 3: Storage & Local Cache -->
+          <div class="settings-section">
+            <h4 class="settings-section__title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;margin-right:6px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              Storage &amp; Local Cache
+            </h4>
+            <div class="settings-row">
+              <div>
+                <strong class="settings-row__label">Clear Game Cache &amp; Saved Data</strong>
+                <p class="settings-row__sub">Frees browser storage by clearing offline assets</p>
+              </div>
+              <button type="button" id="btn-clear-game-cache" class="google-btn google-btn--outlined" style="height: 32px; font-size: 0.8rem;">Clear Cache</button>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong class="settings-row__label">Reset Favorite Media</strong>
+                <p class="settings-row__sub">Clears saved games, playlists, and anime bookmarks</p>
+              </div>
+              <button type="button" id="btn-reset-favorites" class="google-btn google-btn--outlined" style="height: 32px; font-size: 0.8rem; color: #ff6b6b; border-color: rgba(255,107,107,0.4);">Reset Favorites</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
